@@ -39,16 +39,6 @@ def printCount(data) :
         print(element, ':', data[element][0])
     
     print('**PASS**\n')
-
-# lunch data
-
-# test prep course data
-
-# math score data
-
-# reading score data
-
-# writing score data
     
 def main():
     

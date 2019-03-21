@@ -1,0 +1,12 @@
+Categories:
+- gender
+- race/ethnicity
+- parent education level
+- lunch 
+- test prep course
+- math score
+- reading score
+- writing score
+
+Data to collect
+
