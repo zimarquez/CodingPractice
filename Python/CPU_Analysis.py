@@ -10,8 +10,8 @@ import psutil
 import time
 import numpy as np
 import pandas as pd
-import csv
 import matplotlib.pyplot as plt
+import graphics as gr
 
 # global const
 NUM_CPU_CORES = 4
@@ -27,6 +27,24 @@ cpu1_temp_start = 0
 cpu2_temp_start = 0
 cpu3_temp_start = 0
 
+WIDTH = 500
+HEIGHT = 500
+
+def InitGraphics():
+    win = gr.GraphWin("Linux Monitor", WIDTH, HEIGHT)   
+    win.setBackground('black')
+    
+    # core 0
+    pt1 = gr.Point(250,250)
+    pt2 = gr.Point(350,350)
+    pt1.draw(win)
+    pt2.draw(win)
+    
+    rect = gr.Rectangle(pt1, pt2)
+    rect.setOutline('blue')
+    rect.setFill('yellow')
+    rect.setWidth(10)
+    
 def GetCoreTemps(temp_list):
     temp_list.append(cpu_temp_data["coretemp"][1][1])
     temp_list.append(cpu_temp_data["coretemp"][2][1])
