@@ -17,6 +17,7 @@ int main (int argc, char* argv[])
 {
     
     printf("hello\n");
-    displayCMakeVersion(argc, argv);
+    //displayCMakeVersion(argc, argv);
+    calculate(5,7);
     return 0;
 }
