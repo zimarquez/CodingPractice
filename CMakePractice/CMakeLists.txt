@@ -3,6 +3,14 @@ cmake_minimum_required(VERSION 3.10)
 # set the project name
 project(cmakeLearning VERSION 0.1)
 
+# options
+option(USE_SRC "Use the src directory" ON)
+
+if(USE_SRC)
+    add_subdirectory(src)
+    list(APPEND EXTRA_LIBS src)
+endif()
+
 # add a subdirectory
 add_subdirectory(src)
 
@@ -14,7 +22,6 @@ configure_file(src/helloConfig.h.in helloConfig.h)
 
 target_include_directories(hello PUBLIC
                             "${PROJECT_BINARY_DIR}"
-                            "${PROJECT_SOURCE_DIR}/src"
                             )
 
 # specify the C++ standard
