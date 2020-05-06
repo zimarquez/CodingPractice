@@ -1,0 +1,31 @@
+
+{// the tasks file is used for building an executable
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "g++.exe build active file",
+			"command": "C:\\MinGW\\bin\\g++.exe",
+			"args": [
+				"-g",
+				"${file}", //"${workspaceFolder}\\*.cpp" builds all files in current folder
+				"-o",
+				"${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
+				"-lopengl32",
+				"-lglew32",
+				"-lfreeglut",
+				"-lglu32"
+			],
+			"options": {
+				"cwd": "C:\\MinGW\\bin"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
