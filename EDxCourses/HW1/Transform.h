@@ -1,88 +1,34 @@
-// Transform.cpp: implementation of the Transform class.
+// Transform header file to define the interface. 
+// The class is all static for simplicity
+// You need to implement left, up and lookAt
+// Rotate is a helper function
 
-#include "Transform.h"
+// Include the helper glm library, including matrix transform extensions
 
-//Please implement the following functions:
+#ifndef GLM_FORCE_RADIANS
+#define GLM_FORCE_RADIANS
+#endif
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-void printMatrix(mat3 m) {
-    printf("--MATRIX--\n");
-    printf("%f %f %f\n", m[0][0], m[0][1], m[0][2]);
-    printf("%f %f %f\n", m[1][0], m[1][1], m[1][2]);
-    printf("%f %f %f\n", m[2][0], m[2][1], m[2][2]);
-}
+// glm provides vector, matrix classes like glsl
+// Typedefs to make code more readable 
 
-void printVector(vec3 v) {
-
-}
-
-// Helper rotation function.  
-mat3 Transform::rotate(const float degrees, const vec3& axis) {
-  // YOUR CODE FOR HW1 HERE
-    //mat3 res = R(degrees) * axis;
-    
-    // Rodrigues rotation formula
-    // Rotation matrix R = I + (sin(angle))*K + (1-cos(angle))*(K^2)
-    // K is the cross-product matrix of the given axis
-
-    vec3 K1 = vec3(0, -axis.z, axis.y);
-    vec3 K2 = vec3(axis.z, 0, -axis.x);
-    vec3 K3 = vec3(-axis.y, axis.x, 0);
-    mat3 K = mat3(K1, K2, K3);
-
-    float radians = glm::radians(degrees);
-
-    mat3 identityMatrix;
-    mat3 A = sin(radians)*K;
-    mat3 B = (1 - cos(radians)) * (K * glm::transpose(K)); // glm::matrixCompMult(K, K);
-
-    // wikipedia rotation matrix
+typedef glm::mat3 mat3;
+typedef glm::mat4 mat4;
+typedef glm::vec3 vec3;
+typedef glm::vec4 vec4;
+const float pi = 3.14159265; // For portability across platforms
 
 
-    mat3 result = cos(radians)*identityMatrix + A + B;
-    result[0] = glm::normalize(result[0]);
-    result[1] = glm::normalize(result[1]);
-    result[2] = glm::normalize(result[2]);
-
-
-  // You will change this return call
-  return result;
-}
-
-// Transforms the camera left around the "crystal ball" interface
-void Transform::left(float degrees, vec3& eye, vec3& up) {
-  // YOUR CODE FOR HW1 HERE
-
-    vec3 result;
-    mat3 rotationMatrix = rotate(degrees, up);
-    printMatrix(rotationMatrix);
-    result.x = glm::dot(rotationMatrix[0], eye);
-    result.y = glm::dot(rotationMatrix[1], eye);
-    result.z = glm::dot(rotationMatrix[2], eye);
-
-    eye = result;
-    printf("DONE!\n");
-    //eye.y += 1;
-}
-
-// Transforms the camera up around the "crystal ball" interface
-void Transform::up(float degrees, vec3& eye, vec3& up) {
-  // YOUR CODE FOR HW1 HERE 
-}
-
-// Your implementation of the glm::lookAt matrix
-mat4 Transform::lookAt(vec3 eye, vec3 up) {
-  // YOUR CODE FOR HW1 HERE
-
-  // You will change this return call
-  return mat4();
-}
-
-Transform::Transform()
+class Transform
 {
+public:
+	Transform();
+	virtual ~Transform();
+	static void left(float degrees, vec3& eye, vec3& up);
+	static void up(float degrees, vec3& eye, vec3& up);
+	static mat4 lookAt(vec3 eye, vec3 up);
+	static mat3 rotate(const float degrees, const vec3& axis);
+};
 
-}
-
-Transform::~Transform()
-{
-
-}
