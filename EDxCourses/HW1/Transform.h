@@ -31,5 +31,6 @@ public:
 	static mat4 lookAt(vec3 eye, vec3 up);
 	static mat3 rotate(const float degrees, const vec3& axis);
 	static void printMatrix(mat4 m);
+	static void printMatrix(mat3 m);
 };
 

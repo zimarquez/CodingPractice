@@ -6,10 +6,17 @@
 
 void Transform::printMatrix(mat4 m) {
     printf("--MATRIX--\n");
-    printf("%f %f %f\n", m[0][0], m[0][1], m[0][2], m[0][3]);
-    printf("%f %f %f\n", m[1][0], m[1][1], m[1][2], m[1][3]);
-    printf("%f %f %f\n", m[2][0], m[2][1], m[2][2], m[2][3]);
-    printf("%f %f %f\n", m[3][0], m[3][1], m[3][2], m[3][3]);
+    printf("%f %f %f %f\n", m[0][0], m[0][1], m[0][2], m[0][3]);
+    printf("%f %f %f %f\n", m[1][0], m[1][1], m[1][2], m[1][3]);
+    printf("%f %f %f %f\n", m[2][0], m[2][1], m[2][2], m[2][3]);
+    printf("%f %f %f %f\n", m[3][0], m[3][1], m[3][2], m[3][3]);
+}
+
+void Transform::printMatrix(mat3 m) {
+    printf("--MATRIX--\n");
+    printf("%f %f %f\n", m[0][0], m[0][1], m[0][2]);
+    printf("%f %f %f\n", m[1][0], m[1][1], m[1][2]);
+    printf("%f %f %f\n", m[2][0], m[2][1], m[2][2]);
 }
 
 void printVector(vec3 v) {
@@ -20,7 +27,6 @@ void printVector(vec3 v) {
 // Helper rotation function.  
 mat3 Transform::rotate(const float degrees, const vec3& axis) {
     // YOUR CODE FOR HW1 HERE
-    //mat3 res = R(degrees) * axis;
     
     // Rodrigues rotation formula
     // Rotation matrix R = cos(angle)*I + sin(angle)*K + (1-cos(angle))*(K*transpose(K))
@@ -33,23 +39,21 @@ mat3 Transform::rotate(const float degrees, const vec3& axis) {
     mat3 crossProductMatrix = mat3(cp1, cp2, cp3);
 
     // create the outer product matrix
-    vec3 op1 = vec3(axis.x*axis.x, axis.x*axis.y, axis.x*axis.z);
+    vec3 op1 = vec3(axis.x * axis.x, axis.x * axis.y, axis.x * axis.z);
     vec3 op2 = vec3(axis.x * axis.y, axis.y * axis.y, axis.y * axis.z);
-    vec3 op3 = vec3(axis.x * axis.z, axis.y*axis.z, axis.z * axis.z);
+    vec3 op3 = vec3(axis.x * axis.z, axis.y * axis.z, axis.z * axis.z);
     mat3 outerProductMatrix = mat3(op1, op2, op3);
 
-    float radians = glm::radians(degrees);
-
-    mat3 identityMatrix;
-    mat3 A = sin(radians)* crossProductMatrix;
-    mat3 B = (1 - cos(radians)) * outerProductMatrix; //(axis * glm::transpose(axis)); // glm::matrixCompMult(K, K);
+    mat3 identityMatrix(1.0);
+    mat3 A = sin(glm::radians(degrees)) * crossProductMatrix;
+    mat3 B = (1 - cos(glm::radians(degrees))) * outerProductMatrix;
 
     // wikipedia rotation matrix
 
-    mat3 result = cos(radians)*identityMatrix + A + B;
-    result[0] = glm::normalize(result[0]);
-    result[1] = glm::normalize(result[1]);
-    result[2] = glm::normalize(result[2]);
+    mat3 result = cos(glm::radians(degrees)) * identityMatrix + B + A;
+    result[0] = normalize(result[0]);
+    result[1] = normalize(result[1]);
+    result[2] = normalize(result[2]);
     
     return result;
 }
@@ -58,16 +62,19 @@ mat3 Transform::rotate(const float degrees, const vec3& axis) {
 void Transform::left(float degrees, vec3& eye, vec3& up) {
   // YOUR CODE FOR HW1 HERE
 
-    vec3 result;
+    vec3 result(1.0);
     mat3 rotationMatrix = rotate(degrees, up);
-    //printMatrix(rotationMatrix);
-    result.x = glm::dot(rotationMatrix[0], eye);
-    result.y = glm::dot(rotationMatrix[1], eye);
-    result.z = glm::dot(rotationMatrix[2], eye);
+    eye = rotationMatrix * eye;
+    up = rotationMatrix * up;
+/*
+    eye.x = rotationMatrix[0][0] * eye[0] + rotationMatrix[1][0] * eye[1] + rotationMatrix[2][0] * eye[2];
+    eye.y = rotationMatrix[0][1] * eye[0] + rotationMatrix[1][1] * eye[1] + rotationMatrix[2][1] * eye[2];
+    eye.z = rotationMatrix[0][2] * eye[0] + rotationMatrix[1][2] * eye[1] + rotationMatrix[2][2] * eye[2];
 
-    eye = result;
-
-    printf("DONE!\n");
+    up.x = rotationMatrix[0][0] * up[0] + rotationMatrix[1][0] * up[1] + rotationMatrix[2][0] * up[2];
+    up.y = rotationMatrix[0][1] * up[0] + rotationMatrix[1][1] * up[1] + rotationMatrix[2][1] * up[2];
+    up.z = rotationMatrix[0][2] * up[0] + rotationMatrix[1][2] * up[1] + rotationMatrix[2][2] * up[2];
+*/
 }
 
 int i = 2;
@@ -75,19 +82,23 @@ int i = 2;
 void Transform::up(float degrees, vec3& eye, vec3& up) {
   // YOUR CODE FOR HW1 HERE
 
-    vec3 result;
-    vec3 axisOfRotation = normalize(cross(eye, up));
+    vec3 result(1.0);
+    vec3 axisOfRotation = normalize(cross(eye, up)); // swapping eye and up changes the rotation direction
     mat3 rotationMatrix = rotate(degrees, axisOfRotation);
 
-    up.x = dot(rotationMatrix[0], up);
-    up.y = dot(rotationMatrix[1], up);
-    up.z = dot(rotationMatrix[2], up);
+    eye = rotationMatrix * eye;
+    up = rotationMatrix * up;
 
-    result.x = dot(rotationMatrix[0], eye);
-    result.y = dot(rotationMatrix[1], eye);
-    result.z = dot(rotationMatrix[2], eye);
+/*
+    eye.x = rotationMatrix[0][0] * eye[0] + rotationMatrix[1][0] * eye[1] + rotationMatrix[2][0] * eye[2];
+    eye.y = rotationMatrix[0][1] * eye[0] + rotationMatrix[1][1] * eye[1] + rotationMatrix[2][1] * eye[2];
+    eye.z = rotationMatrix[0][2] * eye[0] + rotationMatrix[1][2] * eye[1] + rotationMatrix[2][2] * eye[2];
 
-    eye = result;
+    up.x = rotationMatrix[0][0] * up[0] + rotationMatrix[1][0] * up[1] + rotationMatrix[2][0] * up[2];
+    up.y = rotationMatrix[0][1] * up[0] + rotationMatrix[1][1] * up[1] + rotationMatrix[2][1] * up[2];
+    up.z = rotationMatrix[0][2] * up[0] + rotationMatrix[1][2] * up[1] + rotationMatrix[2][2] * up[2];
+*/
+
 }
 
 // Your implementation of the glm::lookAt matrix
@@ -123,42 +134,38 @@ mat4 Transform::lookAt(vec3 eye, vec3 up) {
     vec3 u = glm::normalize(glm::cross(w,up));
     vec3 v = glm::cross(u,w);
 
-    mat4 lookAtMat(1);
-    float a = -glm::dot(u, eye);// -u.x * eye.x - u.y * eye.y - u.z * eye.z;
-    float b = -glm::dot(v, eye);//-v.x * eye.x - v.y * eye.y - v.z * eye.z;
-    float c = -glm::dot(w, eye);//-w.x * eye.x - w.y * eye.y - w.z * eye.z;
-
+    //mat4 lookAtMat(1);
     vec4 lookAtVecU = vec4(u.x, v.x, -w.x, 0);
     vec4 lookAtVecV = vec4(u.y, v.y, -w.y, 0);
     vec4 lookAtVecW = vec4(u.z, v.z, -w.z, 0);
     vec4 lookAtVecH = vec4(-dot(u, eye), -dot(v, eye), dot(w, eye), 1);
-    lookAtMat = mat4(lookAtVecU, lookAtVecV, lookAtVecW, lookAtVecH);
+    mat4 lookAtMatrix = mat4(lookAtVecU, lookAtVecV, lookAtVecW, lookAtVecH);
     
     printf("LookAt A:\n");
-    printMatrix(lookAtMat);
+    printMatrix(lookAtMatrix);
 
-    return lookAtMat;
+    //return Result;
 
-    lookAtMat = mat4(1);
-    lookAtMat[0][0] = u.x;
-    lookAtMat[1][0] = u.y;
-    lookAtMat[2][0] = u.z;
-    lookAtMat[3][0] = -dot(u, eye);
+    lookAtMatrix = mat4(1);
+    lookAtMatrix[0][0] = u.x;
+    lookAtMatrix[1][0] = u.y;
+    lookAtMatrix[2][0] = u.z;
+    lookAtMatrix[3][0] = -dot(u, eye);
 
-    lookAtMat[0][1] = v.x;
-    lookAtMat[1][1] = v.y;
-    lookAtMat[2][1] = v.z;
-    lookAtMat[3][1] = -dot(v, eye);
+    lookAtMatrix[0][1] = v.x;
+    lookAtMatrix[1][1] = v.y;
+    lookAtMatrix[2][1] = v.z;
+    lookAtMatrix[3][1] = -dot(v, eye);
 
-    lookAtMat[0][2] = -w.x;
-    lookAtMat[1][2] = -w.y;
-    lookAtMat[2][2] = -w.z;
-    lookAtMat[3][2] = dot(w, eye);
+    lookAtMatrix[0][2] = -w.x;
+    lookAtMatrix[1][2] = -w.y;
+    lookAtMatrix[2][2] = -w.z;
+    lookAtMatrix[3][2] = dot(w, eye);
 
     printf("LookAt B:\n");
-    printMatrix(lookAtMat);
+    printMatrix(lookAtMatrix);
 
-    //return lookAtMat;
+    return lookAtMatrix;
     
     //------------------------------------------------------
     
