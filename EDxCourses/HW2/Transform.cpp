@@ -9,30 +9,72 @@
 // Helper rotation function.  Please implement this.  
 mat3 Transform::rotate(const float degrees, const vec3& axis) 
 {
-    mat3 ret;
     // YOUR CODE FOR HW2 HERE
-    // Please implement this.  Likely the same as in HW 1.  
-    return ret;
+    // Please implement this.  Likely the same as in HW 1.
+
+    // REMEMBER: OpenGL uses column major, not row major
+    // create the cross-product matrix
+    vec3 cp1 = vec3(0, axis.z, -axis.y);
+    vec3 cp2 = vec3(-axis.z, 0, axis.x);
+    vec3 cp3 = vec3(axis.y, -axis.x, 0);
+
+    mat3 crossProductMatrix = mat3(cp1, cp2, cp3);
+
+    // create the outer product matrix
+    vec3 op1 = vec3(axis.x * axis.x, axis.x * axis.y, axis.x * axis.z);
+    vec3 op2 = vec3(axis.x * axis.y, axis.y * axis.y, axis.y * axis.z);
+    vec3 op3 = vec3(axis.x * axis.z, axis.y * axis.z, axis.z * axis.z);
+    mat3 outerProductMatrix = mat3(op1, op2, op3);
+
+    mat3 identityMatrix(1.0);
+    mat3 A = sin(glm::radians(degrees)) * crossProductMatrix;
+    mat3 B = (1 - cos(glm::radians(degrees))) * outerProductMatrix;
+
+    // wikipedia rotation matrix
+
+    mat3 result = cos(glm::radians(degrees)) * identityMatrix + B + A;
+    result[0] = normalize(result[0]);
+    result[1] = normalize(result[1]);
+    result[2] = normalize(result[2]);
+
+    return result;
 }
 
 void Transform::left(float degrees, vec3& eye, vec3& up) 
 {
     // YOUR CODE FOR HW2 HERE
-    // Likely the same as in HW 1.  
+    // Likely the same as in HW 1.
+    mat3 rotationMatrix = rotate(degrees, up);
+    eye = rotationMatrix * eye;
+    up = rotationMatrix * up;
 }
 
 void Transform::up(float degrees, vec3& eye, vec3& up) 
 {
     // YOUR CODE FOR HW2 HERE 
-    // Likely the same as in HW 1.  
+    // Likely the same as in HW 1.
+    vec3 axisOfRotation = normalize(cross(eye, up)); // swapping eye and up changes the rotation direction
+    mat3 rotationMatrix = rotate(degrees, axisOfRotation);
+
+    eye = rotationMatrix * eye;
+    up = rotationMatrix * up;
 }
 
 mat4 Transform::lookAt(const vec3 &eye, const vec3 &center, const vec3 &up) 
 {
-    mat4 ret;
     // YOUR CODE FOR HW2 HERE
-    // Likely the same as in HW 1.  
-    return ret;
+    // Likely the same as in HW 1.
+    vec3 w = glm::normalize(eye);
+    vec3 u = glm::normalize(glm::cross(up, w));
+    vec3 v = glm::cross(w, u);
+
+    vec4 lookAtVecU = vec4(u.x, v.x, w.x, 0);
+    vec4 lookAtVecV = vec4(u.y, v.y, w.y, 0);
+    vec4 lookAtVecW = vec4(u.z, v.z, w.z, 0);
+    vec4 lookAtVecH = vec4(-dot(u, eye), -dot(v, eye), -dot(w, eye), 1);
+    mat4 lookAtMatrix = mat4(lookAtVecU, lookAtVecV, lookAtVecW, lookAtVecH);
+
+    return lookAtMatrix;
 }
 
 mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
@@ -40,22 +82,42 @@ mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
     mat4 ret;
     // YOUR CODE FOR HW2 HERE
     // New, to implement the perspective transform as well.  
+
+    // aspect ratio is the ratio of screen width to screen height
+
+    float A = -(zFar + zNear) / (zFar - zNear);
+    float B = -(2 * zFar * zNear) / (zFar - zNear);
+    float D = 1 / glm::tan(fovy / 2); 
+
+    ret = { D/aspect, 0, 0, 0,
+           0, D, 0, 0,
+           0, 0, A, -1,
+           0, 0, B, 0 };
+
     return ret;
 }
 
 mat4 Transform::scale(const float &sx, const float &sy, const float &sz) 
 {
-    mat4 ret;
     // YOUR CODE FOR HW2 HERE
-    // Implement scaling 
+    // Implement scaling
+    mat4 ret = { sx, 0, 0, 0,
+                 0, sy, 0, 0,
+                 0, 0, sz, 0,
+                 0, 0, 0, 1 };
+
     return ret;
 }
 
 mat4 Transform::translate(const float &tx, const float &ty, const float &tz) 
 {
-    mat4 ret;
     // YOUR CODE FOR HW2 HERE
     // Implement translation 
+    mat4 ret = { 1, 0, 0, 0,
+                 0, 1, 0, 0,
+                 0, 0, 1, 0,
+                 tx, ty, tz, 1 };
+
     return ret;
 }
 
